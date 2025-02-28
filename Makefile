@@ -39,6 +39,11 @@ test:
 	@echo "Running tests..."
 	@${GO} test ./... -v
 
+# Run integration tests
+test-integration:
+	@echo "Running integration tests..."
+	@${GO} test ./tests/integration/... -v
+
 # Create a clean build for release
 release: clean
 	@echo "Building release version ${VERSION}..."
@@ -66,6 +71,7 @@ build-all: clean
 tools:
 	@echo "Installing tools..."
 	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	@go install github.com/onsi/ginkgo/v2/ginkgo@latest
 
 # Run linter
 lint: tools
@@ -99,19 +105,20 @@ help:
 	@echo "  make <target>"
 	@echo ""
 	@echo "Targets:"
-	@echo "  build      Build the application"
-	@echo "  run        Build and run the application"
-	@echo "  dev        Run in development mode with go run"
-	@echo "  clean      Remove build artifacts"
-	@echo "  test       Run tests"
-	@echo "  release    Create a clean build for release"
-	@echo "  build-all  Cross-compile for different platforms"
-	@echo "  tools      Install development tools"
-	@echo "  lint       Run linter"
-	@echo "  fmt        Format code"
-	@echo "  install    Install the application to /usr/local/bin"
-	@echo "  docker-build Build Docker image"
-	@echo "  docker-run   Run Docker container"
-	@echo "  help       Show this help message"
+	@echo "  build           Build the application"
+	@echo "  run             Build and run the application"
+	@echo "  dev             Run in development mode with go run"
+	@echo "  clean           Remove build artifacts"
+	@echo "  test            Run unit tests"
+	@echo "  test-integration Run integration tests"
+	@echo "  release         Create a clean build for release"
+	@echo "  build-all       Cross-compile for different platforms"
+	@echo "  tools           Install development tools"
+	@echo "  lint            Run linter"
+	@echo "  fmt             Format code"
+	@echo "  install         Install the application to /usr/local/bin"
+	@echo "  docker-build    Build Docker image"
+	@echo "  docker-run      Run Docker container"
+	@echo "  help            Show this help message"
 
-.PHONY: default build run dev clean test release build-all tools lint fmt install docker-build docker-run help 
+.PHONY: default build run dev clean test test-integration release build-all tools lint fmt install docker-build docker-run help 
