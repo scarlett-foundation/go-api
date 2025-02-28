@@ -14,6 +14,20 @@ import (
 	"golang.org/x/time/rate"
 )
 
+const (
+	// DefaultRequestsPerSecond is the default number of requests allowed per second per API key
+	DefaultRequestsPerSecond = 10
+
+	// DefaultBurst is the default maximum burst size allowed
+	DefaultBurst = 15
+
+	// DefaultExpirationTime is the default duration to keep rate limiters in memory
+	DefaultExpirationTime = 30 * time.Minute
+
+	// CleanupInterval is how often to run the cleanup routine
+	CleanupInterval = 10 * time.Minute
+)
+
 // RateLimiterConfig defines the config for RateLimiter middleware.
 type RateLimiterConfig struct {
 	// Skipper defines a function to skip middleware.
@@ -45,19 +59,19 @@ type rateLimiterEntry struct {
 }
 
 // DefaultRateLimiter returns a middleware that limits requests based on API key
-// Each API key is allowed 20 requests per second with a burst of 30
+// Each API key is allowed DefaultRequestsPerSecond requests per second with a burst of DefaultBurst
 func DefaultRateLimiter() echo.MiddlewareFunc {
 	// Initialize config with default values
 	config := &RateLimiterConfig{
 		Skipper:           middleware.DefaultSkipper,
-		RequestsPerSecond: rate.Limit(20),
-		Burst:             30,
-		ExpirationTime:    30 * time.Minute,
+		RequestsPerSecond: rate.Limit(DefaultRequestsPerSecond),
+		Burst:             DefaultBurst,
+		ExpirationTime:    DefaultExpirationTime,
 		Limiters:          make(map[string]*rateLimiterEntry),
 	}
 
 	// Start cleanup goroutine
-	config.CleanupTicker = time.NewTicker(10 * time.Minute)
+	config.CleanupTicker = time.NewTicker(CleanupInterval)
 	go func() {
 		for range config.CleanupTicker.C {
 			config.cleanup()

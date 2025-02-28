@@ -35,6 +35,11 @@ import (
 	echomw "github.com/labstack/echo/v4/middleware"
 )
 
+const (
+	// DefaultPort is the port used when no PORT environment variable is set
+	DefaultPort = "8082"
+)
+
 func main() {
 	// Load environment variables
 	if err := godotenv.Load(); err != nil {
@@ -61,7 +66,7 @@ func main() {
 	// Start server
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = DefaultPort
 	}
 	e.Logger.Fatal(e.Start(":" + port))
 }
