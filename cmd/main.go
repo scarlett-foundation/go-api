@@ -27,11 +27,12 @@ import (
 
 	// Import swagger docs
 	_ "go-api/docs/swagger"
+	"go-api/internal/middleware"
 	"go-api/internal/routes"
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	echomw "github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
@@ -44,9 +45,12 @@ func main() {
 	e := echo.New()
 
 	// Middleware
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-	e.Use(middleware.CORS())
+	e.Use(echomw.Logger())
+	e.Use(echomw.Recover())
+	e.Use(echomw.CORS())
+
+	// Add rate limiter middleware
+	e.Use(middleware.DefaultRateLimiter())
 
 	// Register Swagger documentation routes
 	routes.RegisterSwaggerRoutes(e)

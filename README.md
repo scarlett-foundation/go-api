@@ -11,6 +11,7 @@ A lean Go API wrapper for the Groq chat completions endpoint using the Echo fram
 - CORS enabled
 - Error handling and logging
 - API key authentication
+- Per-API key rate limiting (20 requests/second per key)
 - Swagger/OpenAPI documentation
 
 ## Setup
@@ -41,6 +42,19 @@ Authorization: Bearer your-api-key
 ```
 
 **Important**: The "Bearer " prefix is required. Requests without this prefix will be rejected with a 401 Unauthorized error.
+
+### Rate Limiting
+
+The API implements rate limiting on a per-API key basis:
+
+- Each API key is limited to 20 requests per second
+- Burst capacity of 30 requests allows for occasional traffic spikes
+- Rate limit information is returned in response headers:
+  - `X-RateLimit-Limit`: Requests per second allowed (20.00)
+  - `X-RateLimit-Remaining`: Remaining requests in the current window
+  - `X-RateLimit-Reset`: Unix timestamp when the rate limit window resets
+
+When rate limits are exceeded, the API returns a 429 Too Many Requests status code with an error message.
 
 ### Chat Completions Endpoint
 
