@@ -15,10 +15,10 @@ RUN go mod download
 COPY . .
 
 # Generate Swagger docs
-RUN /go/bin/swag init -g main.go -d ./ -o ./docs/swagger
+RUN /go/bin/swag init -g cmd/main.go -d ./ -o ./docs/swagger
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -o api-server
+RUN CGO_ENABLED=0 GOOS=linux go build -o api-server ./cmd
 
 # Use a smaller image for runtime
 FROM alpine:3.18

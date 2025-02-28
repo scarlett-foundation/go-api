@@ -12,8 +12,8 @@ const docTemplate = `{
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
             "name": "API Support",
-            "url": "http://www.scarlett.com/support",
-            "email": "support@scarlett.com"
+            "url": "http://www.scarlett.ai/support",
+            "email": "help@scarlett.ai"
         },
         "license": {
             "name": "Apache 2.0",
@@ -224,7 +224,7 @@ const docTemplate = `{
     },
     "securityDefinitions": {
         "BearerAuth": {
-            "description": "API key authentication with Bearer prefix (e.g., \"Bearer your-api-key\")",
+            "description": "API key authentication with Bearer prefix (e.g., \"Bearer your-api-key\"). The 'Bearer ' prefix is REQUIRED - requests without it will be rejected.",
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"
@@ -238,8 +238,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8082",
 	BasePath:         "/",
 	Schemes:          []string{"http", "https"},
-	Title:            "Groq API Proxy",
-	Description:      "A Go API proxy service for the Groq API that provides chat completion functionality",
+	Title:            "Scarlett API",
+	Description:      "A Go API service for the Scarlett Protocol that provides chat completion functionality",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

@@ -103,16 +103,16 @@ definitions:
 host: localhost:8082
 info:
   contact:
-    email: support@scarlett.com
+    email: help@scarlett.ai
     name: API Support
-    url: http://www.scarlett.com/support
-  description: A Go API proxy service for the Groq API that provides chat completion
+    url: http://www.scarlett.ai/support
+  description: A Go API service for the Scarlett Protocol that provides chat completion
     functionality
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://swagger.io/terms/
-  title: Groq API Proxy
+  title: Scarlett API
   version: "1.0"
 paths:
   /chat/completions:
@@ -157,7 +157,8 @@ schemes:
 - https
 securityDefinitions:
   BearerAuth:
-    description: API key authentication with Bearer prefix (e.g., "Bearer your-api-key")
+    description: API key authentication with Bearer prefix (e.g., "Bearer your-api-key").
+      The 'Bearer ' prefix is REQUIRED - requests without it will be rejected.
     in: header
     name: Authorization
     type: apiKey

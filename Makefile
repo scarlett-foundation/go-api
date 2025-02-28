@@ -3,7 +3,7 @@
 # Variables
 BINARY_NAME=api-server
 GO=go
-MAIN_PATH=main.go
+MAIN_PATH=cmd/main.go
 BUILD_DIR=build
 GOOS?=$(shell go env GOOS)
 GOARCH?=$(shell go env GOARCH)
@@ -17,7 +17,7 @@ default: build
 # Build the application
 build:
 	@echo "Building ${BINARY_NAME}..."
-	@${GO} build -o ${BINARY_NAME} ${LDFLAGS}
+	@${GO} build -o ${BINARY_NAME} ${LDFLAGS} ./cmd
 
 # Run the application
 run: build
@@ -93,7 +93,7 @@ install: build
 # Generate Swagger documentation
 swagger:
 	@echo "Generating Swagger documentation..."
-	@${SWAG} init -g main.go -d ./ -o ./docs/swagger
+	@${SWAG} init -g cmd/main.go -d ./ -o ./docs/swagger
 
 # Run with Swagger docs
 run-swagger: swagger build
