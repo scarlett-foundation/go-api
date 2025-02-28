@@ -1,8 +1,14 @@
 package types
 
+// Message represents a chat message with role and content
+// @Description A message in a chat conversation
 type Message struct {
-	Role    string `json:"role"`
-	Content string `json:"content"`
+	// Role of the message sender (e.g., user, assistant)
+	// example: user
+	Role string `json:"role" example:"user"`
+	// Content of the message
+	// example: Hello, how are you today?
+	Content string `json:"content" example:"Hello, how are you today?"`
 }
 
 type Usage struct {
@@ -36,16 +42,29 @@ type ErrorResponse struct {
 	} `json:"error"`
 }
 
+// ChatRequest represents a chat completion request
+// @Description Request payload for chat completions
 type ChatRequest struct {
-	Messages         []Message `json:"messages"`
-	Model            string    `json:"model"`
-	Temperature      float64   `json:"temperature,omitempty"`
-	MaxTokens        int       `json:"max_tokens,omitempty"`
-	TopP             float64   `json:"top_p,omitempty"`
-	FrequencyPenalty float64   `json:"frequency_penalty,omitempty"`
-	PresencePenalty  float64   `json:"presence_penalty,omitempty"`
-	Stream           bool      `json:"stream,omitempty"`
-	Stop             []string  `json:"stop,omitempty"`
-	N                int       `json:"n,omitempty"`
-	User             string    `json:"user,omitempty"`
+	// Array of messages in the conversation
+	Messages []Message `json:"messages" example:"[{\"role\":\"user\",\"content\":\"Tell me about artificial intelligence\"}]"`
+	// Model ID to use for completion
+	Model string `json:"model" example:"deepseek-r1-distill-llama-70b"`
+	// Sampling temperature between 0 and 2
+	Temperature float64 `json:"temperature,omitempty" example:"0.7"`
+	// Maximum number of tokens to generate
+	MaxTokens int `json:"max_tokens,omitempty" example:"100"`
+	// Nucleus sampling parameter
+	TopP float64 `json:"top_p,omitempty" example:"1.0"`
+	// Frequency penalty for token generation
+	FrequencyPenalty float64 `json:"frequency_penalty,omitempty" example:"0"`
+	// Presence penalty for token generation
+	PresencePenalty float64 `json:"presence_penalty,omitempty" example:"0"`
+	// Whether to stream the response
+	Stream bool `json:"stream,omitempty" example:"false"`
+	// Sequences to stop generation
+	Stop []string `json:"stop,omitempty" example:"[\"END\",\"STOP\"]"`
+	// Number of completions to generate
+	N int `json:"n,omitempty" example:"1"`
+	// Optional user identifier
+	User string `json:"user,omitempty" example:"user123"`
 }

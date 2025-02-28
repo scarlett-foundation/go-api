@@ -10,6 +10,8 @@ A lean Go API wrapper for the Groq chat completions endpoint using the Echo fram
 - Environment-based configuration
 - CORS enabled
 - Error handling and logging
+- API key authentication
+- Swagger/OpenAPI documentation
 
 ## Setup
 
@@ -29,6 +31,16 @@ A lean Go API wrapper for the Groq chat completions endpoint using the Echo fram
    ```
 
 ## API Usage
+
+### Authentication
+
+The API requires an API key passed in the Authorization header with the Bearer token format:
+
+```
+Authorization: Bearer your-api-key
+```
+
+**Important**: The "Bearer " prefix is required. Requests without this prefix will be rejected with a 401 Unauthorized error.
 
 ### Chat Completions Endpoint
 
@@ -87,6 +99,7 @@ A lean Go API wrapper for the Groq chat completions endpoint using the Echo fram
 ```bash
 curl -X POST "http://localhost:8080/chat/completions" \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer your-api-key" \
   -d '{
     "messages": [
       {

@@ -1,0 +1,164 @@
+basePath: /
+definitions:
+  models.ChatRequestExample:
+    description: Example chat request
+    properties:
+      max_tokens:
+        description: Maximum number of tokens to generate
+        example: 100
+        type: integer
+      messages:
+        description: Array of messages in the conversation
+        items:
+          properties:
+            content:
+              description: Content of the message
+              example: Hello, how are you?
+              type: string
+            role:
+              description: Role of the message sender
+              example: user
+              type: string
+          type: object
+        type: array
+      model:
+        description: Model ID
+        example: deepseek-r1-distill-llama-70b
+        type: string
+      stream:
+        description: Whether to stream the response
+        example: false
+        type: boolean
+      temperature:
+        description: Sampling temperature
+        example: 0.7
+        type: number
+    type: object
+  types.ChatResponse:
+    properties:
+      choices:
+        items:
+          $ref: '#/definitions/types.Choice'
+        type: array
+      created:
+        type: integer
+      id:
+        type: string
+      model:
+        type: string
+      object:
+        type: string
+      system_fingerprint:
+        type: string
+      usage:
+        $ref: '#/definitions/types.Usage'
+    type: object
+  types.Choice:
+    properties:
+      finish_reason:
+        type: string
+      index:
+        type: integer
+      message:
+        $ref: '#/definitions/types.Message'
+    type: object
+  types.ErrorResponse:
+    properties:
+      error:
+        properties:
+          code: {}
+          message:
+            type: string
+          param:
+            type: string
+          type:
+            type: string
+        type: object
+    type: object
+  types.Message:
+    description: A message in a chat conversation
+    properties:
+      content:
+        description: |-
+          Content of the message
+          example: Hello, how are you today?
+        example: Hello, how are you today?
+        type: string
+      role:
+        description: |-
+          Role of the message sender (e.g., user, assistant)
+          example: user
+        example: user
+        type: string
+    type: object
+  types.Usage:
+    properties:
+      completion_tokens:
+        type: integer
+      prompt_tokens:
+        type: integer
+      total_tokens:
+        type: integer
+    type: object
+host: localhost:8082
+info:
+  contact:
+    email: support@scarlett.com
+    name: API Support
+    url: http://www.scarlett.com/support
+  description: A Go API proxy service for the Groq API that provides chat completion
+    functionality
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Groq API Proxy
+  version: "1.0"
+paths:
+  /chat/completions:
+    post:
+      consumes:
+      - application/json
+      description: 'Proxies a chat completions request to the Groq API. Important:
+        Authorization header must use Bearer format (e.g., "Bearer your-api-key").'
+      parameters:
+      - description: Chat request payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ChatRequestExample'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.ChatResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+        "401":
+          description: Unauthorized - Invalid or missing API key
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/types.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Process chat completions request
+      tags:
+      - chat
+schemes:
+- http
+- https
+securityDefinitions:
+  BearerAuth:
+    description: API key authentication with Bearer prefix (e.g., "Bearer your-api-key")
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

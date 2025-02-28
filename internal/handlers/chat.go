@@ -14,7 +14,44 @@ import (
 
 const groqEndpoint = "https://api.groq.com/openai/v1/chat/completions"
 
+// @model ChatRequest
+// @Description Chat completion request
+// @Property model string "Model ID to use" Required: true Example: "deepseek-r1-distill-llama-70b"
+// @Property messages array "Array of messages" Required: true Items: {"$ref": "#/definitions/Message"} Example: [{"role":"user","content":"Hello, how are you?"}]
+// @Property temperature number "Temperature for sampling (0.0 to 2.0)" Default: 0.7 Example: 0.7
+// @Property max_tokens integer "Maximum tokens to generate" Default: 100 Example: 100
+// @Property stream boolean "Stream the response" Default: false Example: false
+
 // HandleChatCompletions handles the chat completions endpoint
+// @Summary Process chat completions request
+// @Description Proxies a chat completions request to the Groq API. Important: Authorization header must use Bearer format (e.g., "Bearer your-api-key").
+// @Tags chat
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body models.ChatRequestExample true "Chat request payload"
+// @Success 200 {object} types.ChatResponse
+// @Failure 400 {object} types.ErrorResponse "Invalid request body"
+// @Failure 401 {object} types.ErrorResponse "Unauthorized - Invalid or missing API key"
+// @Failure 500 {object} types.ErrorResponse "Internal server error"
+// @Example curl request
+//
+//	curl -X POST http://localhost:8082/chat/completions \
+//	  -H "Authorization: Bearer your-api-key" \
+//	  -H "Content-Type: application/json" \
+//	  -d '{
+//	    "model": "deepseek-r1-distill-llama-70b",
+//	    "messages": [
+//	      {
+//	        "role": "user",
+//	        "content": "Hello, how are you?"
+//	      }
+//	    ],
+//	    "temperature": 0.7,
+//	    "max_tokens": 50
+//	  }'
+//
+// @Router /chat/completions [post]
 func HandleChatCompletions(c echo.Context) error {
 	apiKey := os.Getenv("GROQ_API_KEY")
 	if apiKey == "" {

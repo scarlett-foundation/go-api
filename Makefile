@@ -9,6 +9,7 @@ GOOS?=$(shell go env GOOS)
 GOARCH?=$(shell go env GOARCH)
 VERSION?=0.1.0
 LDFLAGS=-ldflags "-X main.Version=${VERSION}"
+SWAG=swag
 
 # Default target executed when no arguments are given to make.
 default: build
@@ -72,6 +73,7 @@ tools:
 	@echo "Installing tools..."
 	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	@go install github.com/onsi/ginkgo/v2/ginkgo@latest
+	@go install github.com/swaggo/swag/cmd/swag@latest
 
 # Run linter
 lint: tools
@@ -88,8 +90,18 @@ install: build
 	@echo "Installing ${BINARY_NAME}..."
 	@mv ${BINARY_NAME} /usr/local/bin/
 
+# Generate Swagger documentation
+swagger:
+	@echo "Generating Swagger documentation..."
+	@${SWAG} init -g main.go -d ./ -o ./docs/swagger
+
+# Run with Swagger docs
+run-swagger: swagger build
+	@echo "Running with Swagger documentation..."
+	@./${BINARY_NAME}
+
 # Docker related commands
-docker-build:
+docker-build: swagger
 	@echo "Building Docker image..."
 	@docker build -t ${BINARY_NAME}:${VERSION} .
 
@@ -117,8 +129,10 @@ help:
 	@echo "  lint            Run linter"
 	@echo "  fmt             Format code"
 	@echo "  install         Install the application to /usr/local/bin"
-	@echo "  docker-build    Build Docker image"
+	@echo "  swagger         Generate Swagger documentation"
+	@echo "  run-swagger     Run with Swagger documentation"
+	@echo "  docker-build    Build Docker image (includes Swagger docs)"
 	@echo "  docker-run      Run Docker container"
 	@echo "  help            Show this help message"
 
-.PHONY: default build run dev clean test test-integration release build-all tools lint fmt install docker-build docker-run help 
+.PHONY: default build run dev clean test test-integration release build-all tools lint fmt install swagger run-swagger docker-build docker-run help 
