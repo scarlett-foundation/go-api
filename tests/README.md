@@ -24,6 +24,12 @@ This will:
 2. Start the server
 3. Run the tests against the live server
 4. Shut down the server when tests are complete
+5. Automatically clean up any binaries created during testing
+
+The test suite includes automatic cleanup to ensure no test artifacts remain:
+- If the API server binary was built by the test, it will be removed after tests complete
+- Existing binaries found before testing will be left untouched
+- Process termination is properly handled to avoid orphaned processes
 
 ### Test Coverage
 
@@ -40,4 +46,5 @@ When adding new integration tests:
 1. Place them in the appropriate directory (`integration/`)
 2. Follow the Ginkgo BDD-style test patterns
 3. Make sure they check real behavior of the system
-4. Keep tests independent and idempotent 
+4. Keep tests independent and idempotent
+5. Ensure proper resource cleanup in BeforeSuite/AfterSuite functions 
