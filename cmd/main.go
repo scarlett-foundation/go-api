@@ -41,9 +41,9 @@ const (
 )
 
 func main() {
-	// Load environment variables
+	// Load environment variables from .env file if present
 	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
+		log.Printf("Warning: .env file not found, using environment variables")
 	}
 
 	// Create Echo instance
