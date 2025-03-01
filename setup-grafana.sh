@@ -27,17 +27,32 @@ PROM_UID=$(curl -s -u admin:admin http://localhost:3000/api/datasources | jq -r 
 if [ -n "$PROM_UID" ] && [ "$PROM_UID" != "null" ]; then
     echo "Found Prometheus datasource with UID: $PROM_UID"
     
-    # Create a temporary dashboard file with the correct datasource UID
-    TEMP_DASHBOARD=$(mktemp)
-    cat ./grafana/dashboards/api_key_metrics.json | sed "s/\${DS_PROMETHEUS}/$PROM_UID/g" > "$TEMP_DASHBOARD"
+    # Function to import a dashboard
+    import_dashboard() {
+        local dashboard_file=$1
+        local dashboard_name=$2
+        
+        echo "Importing $dashboard_name dashboard..."
+        TEMP_DASHBOARD=$(mktemp)
+        cat "$dashboard_file" | sed "s/\${DS_PROMETHEUS}/$PROM_UID/g" > "$TEMP_DASHBOARD"
+        
+        RESULT=$(curl -s -X POST -H "Content-Type: application/json" \
+          -d "{\"dashboard\": $(cat $TEMP_DASHBOARD), \"overwrite\": true}" \
+          -u admin:admin http://localhost:3000/api/dashboards/db)
+        
+        rm "$TEMP_DASHBOARD"
+        
+        if echo "$RESULT" | grep -q '"status":"success"'; then
+            echo "✓ Successfully imported $dashboard_name"
+        else
+            echo "✗ Failed to import $dashboard_name"
+            echo "$RESULT"
+        fi
+    }
     
-    # Import the dashboard to Grafana
-    echo "Importing dashboard..."
-    curl -s -X POST -H "Content-Type: application/json" \
-      -d "{\"dashboard\": $(cat $TEMP_DASHBOARD), \"overwrite\": true}" \
-      -u admin:admin http://localhost:3000/api/dashboards/db
-    
-    rm "$TEMP_DASHBOARD"
+    # Import all dashboards
+    import_dashboard "./grafana/dashboards/api_key_metrics.json" "API Key Metrics"
+    import_dashboard "./grafana/dashboards/token_usage_metrics.json" "Token Usage Overview"
     
     # Disable public dashboards feature globally in Grafana
     echo "Disabling public dashboards feature globally..."
