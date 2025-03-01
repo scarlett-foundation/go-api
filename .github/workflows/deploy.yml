@@ -1,0 +1,74 @@
+name: Deploy to Hetzner
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Update docker-compose version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          sed -i "s|build:|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${VERSION}|g" docker-compose.yml
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Install SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.HETZNER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Copy configuration files
+        run: |
+          ssh root@${{ secrets.HETZNER_HOST }} "mkdir -p /root/scarlett"
+          scp docker-compose.yml root@${{ secrets.HETZNER_HOST }}:/root/scarlett/
+          scp nginx.conf root@${{ secrets.HETZNER_HOST }}:/root/scarlett/
+          scp .env root@${{ secrets.HETZNER_HOST }}:/root/scarlett/
+          scp api-keys.yaml root@${{ secrets.HETZNER_HOST }}:/root/scarlett/
+          scp -r grafana root@${{ secrets.HETZNER_HOST }}:/root/scarlett/
+          scp prometheus.yml root@${{ secrets.HETZNER_HOST }}:/root/scarlett/
+
+      - name: Deploy to Hetzner
+        run: |
+          ssh root@${{ secrets.HETZNER_HOST }} "cd /root/scarlett && docker-compose pull && docker-compose up -d"
+
+      - name: Cleanup
+        run: rm -f ~/.ssh/id_rsa 
