@@ -67,8 +67,10 @@ jobs:
           ssh root@${{ secrets.HETZNER_HOST }} "apt-get update && apt-get install -y docker.io && systemctl start docker && systemctl enable docker"
           # Install Docker Compose on the server
           ssh root@${{ secrets.HETZNER_HOST }} "curl -L https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose"
-          # Create Docker config for private repository access
-          ssh root@${{ secrets.HETZNER_HOST }} "mkdir -p /root/.docker && echo '{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"'$(echo -n \"${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }}\" | base64)'\"}}}' > /root/.docker/config.json"
+          # Login to Docker Hub on the server
+          ssh root@${{ secrets.HETZNER_HOST }} "docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}"
+          # Create Docker config backup
+          ssh root@${{ secrets.HETZNER_HOST }} "cp ~/.docker/config.json ~/.docker/config.json.backup || true"
           # Pull and deploy
           ssh root@${{ secrets.HETZNER_HOST }} "cd /root/scarlett && /usr/local/bin/docker-compose pull && /usr/local/bin/docker-compose up -d"
 
