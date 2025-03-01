@@ -25,3 +25,7 @@ go.work.sum
 .env
 api-server
 *.rsa
+ssl-temp/api.scarlett.ai.key
+ssl-temp/api.scarlett.ai.pem
+ssl-temp/grafana.scarlett.ai.key
+ssl-temp/grafana.scarlett.ai.pem
