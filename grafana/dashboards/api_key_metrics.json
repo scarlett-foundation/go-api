@@ -5,7 +5,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": null,
+  "id": 1,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -72,7 +72,9 @@
       "id": 1,
       "options": {
         "legend": {
-          "calcs": ["max"],
+          "calcs": [
+            "max"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -172,7 +174,9 @@
       "id": 2,
       "options": {
         "legend": {
-          "calcs": ["max"],
+          "calcs": [
+            "max"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -272,7 +276,10 @@
       "id": 3,
       "options": {
         "legend": {
-          "calcs": ["mean", "max"],
+          "calcs": [
+            "mean",
+            "max"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -372,7 +379,10 @@
       "id": 4,
       "options": {
         "legend": {
-          "calcs": ["mean", "max"],
+          "calcs": [
+            "mean",
+            "max"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -410,10 +420,14 @@
       "type": "timeseries"
     }
   ],
+  "publicDashboardEnabled": false,
   "refresh": "5s",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": ["api", "prometheus"],
+  "tags": [
+    "api",
+    "prometheus"
+  ],
   "templating": {
     "list": []
   },
@@ -425,6 +439,6 @@
   "timezone": "browser",
   "title": "API Key Metrics",
   "uid": "api-key-metrics",
-  "version": 1,
+  "version": 3,
   "weekStart": ""
-} 
+}
