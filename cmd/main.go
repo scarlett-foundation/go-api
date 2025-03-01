@@ -57,6 +57,12 @@ func main() {
 	// Add rate limiter middleware
 	e.Use(middleware.DefaultRateLimiter())
 
+	// Add Prometheus middleware for metrics collection
+	e.Use(middleware.PrometheusMiddleware())
+
+	// Register Prometheus metrics endpoint
+	middleware.RegisterPrometheusHandler(e)
+
 	// Register Swagger documentation routes
 	routes.RegisterSwaggerRoutes(e)
 
