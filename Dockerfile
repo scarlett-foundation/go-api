@@ -29,7 +29,6 @@ WORKDIR /app
 COPY --from=builder /app/api-server .
 # Copy necessary files
 COPY api-keys.yaml .
-COPY .env .
 # Copy Swagger docs
 COPY --from=builder /app/docs/swagger ./docs/swagger
 

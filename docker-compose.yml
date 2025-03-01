@@ -26,8 +26,6 @@ services:
       - "8082"
     volumes:
       - ./api-keys.yaml:/app/api-keys.yaml:ro
-    env_file:
-      - .env
     networks:
       - scarlett-network
     environment:
