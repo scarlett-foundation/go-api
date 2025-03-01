@@ -63,6 +63,9 @@ jobs:
 
       - name: Deploy to Hetzner
         run: |
+          # Create Docker config for private repository access
+          ssh root@${{ secrets.HETZNER_HOST }} "mkdir -p /root/.docker && echo '{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"'$(echo -n \"${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }}\" | base64)'\"}}}' > /root/.docker/config.json"
+          # Pull and deploy
           ssh root@${{ secrets.HETZNER_HOST }} "cd /root/scarlett && docker-compose pull && docker-compose up -d"
 
       - name: Cleanup
