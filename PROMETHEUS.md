@@ -64,6 +64,16 @@ api_key_requests_total
 
 This will show the number of requests per (masked) API key. For privacy, API keys are masked to show only the first and last 4 characters.
 
+#### API Key Masking
+
+The API uses the following rules for masking API keys in metrics:
+
+- Keys longer than 8 characters: First 4 characters + "..." + last 4 characters (e.g., "test...y123")
+- Keys 8 characters or shorter: Labeled as "short_key" to prevent identification
+- Missing or malformed keys: Labeled as "unknown"
+
+The "short_key" label in metrics represents any API key that was too short to apply the standard masking pattern. This could include both valid and invalid keys that are 8 characters or fewer in length.
+
 ### HTTP Request Metrics
 
 - Total requests by status code, method, and path:
@@ -74,6 +84,11 @@ This will show the number of requests per (masked) API key. For privacy, API key
 - Request duration:
   ```
   http_request_duration_seconds
+  ```
+
+- Average request duration:
+  ```
+  http_request_duration_seconds_sum / http_request_duration_seconds_count
   ```
 
 ## Setting Up Grafana Dashboards
@@ -141,6 +156,7 @@ The default Prometheus configuration is in `prometheus.yml`. You can modify this
 
 - The `/metrics` endpoint is publicly accessible by default. In a production environment, you should secure this endpoint.
 - API keys are masked in the metrics to protect sensitive information.
+- The masking mechanism ensures that full API keys are never exposed in metrics.
 
 ## Troubleshooting
 
@@ -149,6 +165,12 @@ If metrics are not appearing in Prometheus:
 1. Check that the API is running and accessible
 2. Verify Prometheus is scraping the API by checking the Targets page in Prometheus UI
 3. Ensure the network configuration allows Prometheus to reach the API
+
+### Common Issues
+
+- **No API key metrics:** Make sure requests include a properly formatted Authorization header (`Bearer your-api-key`)
+- **Missing metrics endpoint:** Check that `RegisterPrometheusHandler` is being called in main.go
+- **"short_key" metrics high:** Could indicate potential brute force attempts with short keys
 
 ## Additional Resources
 
