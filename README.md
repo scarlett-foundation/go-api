@@ -140,3 +140,32 @@ Error types include:
 ## License
 
 MIT License
+
+## Monitoring Setup
+
+The API comes with pre-configured monitoring using Prometheus and Grafana. When you start the Docker Compose environment, these components are automatically set up:
+
+1. **Prometheus** - Collects metrics from the API
+2. **Grafana** - Provides dashboards for visualizing metrics
+
+### Automatic Dashboard Provisioning
+
+Grafana dashboards and data sources are automatically configured on startup using Grafana's provisioning feature. The dashboards show:
+
+- API calls by API key (cumulative over time)
+- Token usage by API key (cumulative over time)
+- API calls per hour
+- Token usage per hour
+
+To access the dashboards:
+1. Start the environment with `docker-compose up -d`
+2. Open Grafana at http://localhost:3000 (username: admin, password: admin)
+3. The "API Key Metrics" dashboard will be automatically available
+
+If you need to fix any configuration issues, run the included setup script:
+
+```bash
+./setup-grafana.sh
+```
+
+For more details on the monitoring setup, see [grafana/README.md](grafana/README.md).
