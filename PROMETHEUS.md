@@ -8,6 +8,7 @@ The Scarlett API includes built-in Prometheus monitoring to track:
 - Total HTTP requests by status code, method, and path
 - HTTP request duration
 - API key usage (with masked keys for privacy)
+- Token usage from LLM inference requests (prompt, completion, and total tokens)
 
 ## Running with Docker Compose
 
@@ -74,6 +75,27 @@ The API uses the following rules for masking API keys in metrics:
 
 The "short_key" label in metrics represents any API key that was too short to apply the standard masking pattern. This could include both valid and invalid keys that are 8 characters or fewer in length.
 
+### Token Usage Metrics
+
+The API tracks token usage for each request, broken down by API key:
+
+- Prompt tokens (input tokens):
+  ```
+  token_usage_prompt_total
+  ```
+
+- Completion tokens (output tokens):
+  ```
+  token_usage_completion_total
+  ```
+
+- Total tokens:
+  ```
+  token_usage_total
+  ```
+
+You can use these metrics to track token consumption by different API keys, monitor costs, and plan capacity.
+
 ### HTTP Request Metrics
 
 - Total requests by status code, method, and path:
@@ -123,7 +145,7 @@ If you need to recreate this dashboard or create it manually, use the following 
         "type": "bargauge",
         "gridPos": {
           "h": 8,
-          "w": 24,
+          "w": 12,
           "x": 0,
           "y": 0
         },
@@ -134,6 +156,47 @@ If you need to recreate this dashboard or create it manually, use the following 
             "refId": "A"
           }
         ]
+      },
+      {
+        "id": 2,
+        "title": "Token Usage by API Key",
+        "type": "bargauge",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "sum by (api_key) (token_usage_total)",
+            "legendFormat": "{{api_key}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Prompt vs Completion Tokens",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 8
+        },
+        "targets": [
+          {
+            "expr": "sum(token_usage_prompt_total)",
+            "legendFormat": "Prompt Tokens",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(token_usage_completion_total)",
+            "legendFormat": "Completion Tokens",
+            "refId": "B"
+          }
+        ]
       }
     ],
     "schemaVersion": 16,
@@ -142,10 +205,105 @@ If you need to recreate this dashboard or create it manually, use the following 
 }
 ```
 
-This can be created via the Grafana API with:
+### Token Usage Dashboard
+
+To create a dedicated dashboard for token usage metrics, use the following configuration:
 
 ```bash
-curl -X POST -H "Content-Type: application/json" -u admin:admin -d '{"dashboard":{"id":null,"title":"API Key Usage","tags":["api","prometheus"],"timezone":"browser","panels":[{"id":1,"title":"API Key Usage","type":"bargauge","gridPos":{"h":8,"w":24,"x":0,"y":0},"targets":[{"expr":"sum by (api_key) (api_key_requests_total)","legendFormat":"{{api_key}}","refId":"A"}]}],"schemaVersion":16,"version":0},"folderId":0,"overwrite":false}' http://localhost:3000/api/dashboards/db
+curl -X POST -H "Content-Type: application/json" -u admin:admin -d '{
+  "dashboard": {
+    "id": null,
+    "title": "Token Usage Metrics",
+    "tags": ["api", "prometheus", "tokens"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Total Tokens Used by API Key",
+        "type": "piechart",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "sum by (api_key) (token_usage_total)",
+            "legendFormat": "{{api_key}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Prompt vs Completion Tokens",
+        "type": "piechart",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "sum(token_usage_prompt_total)",
+            "legendFormat": "Prompt",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(token_usage_completion_total)",
+            "legendFormat": "Completion",
+            "refId": "B"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Token Usage Over Time",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 8
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(token_usage_total[5m]))",
+            "legendFormat": "Tokens per second (5m avg)",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Input/Output Token Ratio by API Key",
+        "type": "bargauge",
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 16
+        },
+        "options": {
+          "orientation": "horizontal"
+        },
+        "targets": [
+          {
+            "expr": "sum by (api_key) (token_usage_completion_total) / sum by (api_key) (token_usage_prompt_total)",
+            "legendFormat": "{{api_key}}",
+            "refId": "A"
+          }
+        ]
+      }
+    ],
+    "schemaVersion": 16,
+    "version": 0
+  },
+  "folderId": 0,
+  "overwrite": false
+}' http://localhost:3000/api/dashboards/db
 ```
 
 ## Custom Prometheus Configuration
@@ -171,6 +329,7 @@ If metrics are not appearing in Prometheus:
 - **No API key metrics:** Make sure requests include a properly formatted Authorization header (`Bearer your-api-key`)
 - **Missing metrics endpoint:** Check that `RegisterPrometheusHandler` is being called in main.go
 - **"short_key" metrics high:** Could indicate potential brute force attempts with short keys
+- **No token metrics:** Only successful chat completion requests (HTTP 200) will record token metrics
 
 ## Additional Resources
 
