@@ -18,9 +18,7 @@ services:
     restart: unless-stopped
 
   api:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: scarlettai/go-api:latest
     container_name: api
     expose:
       - "8082"
