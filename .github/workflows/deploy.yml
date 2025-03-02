@@ -43,6 +43,7 @@ jobs:
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
           build-args: |
             API_HOST=${{ env.API_HOST }}
+            GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}
 
       - name: Deploy to Hetzner
         uses: appleboy/ssh-action@v1.0.0
@@ -52,5 +53,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /root/scarlett
+            export GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}
             docker-compose pull
             docker-compose up -d 

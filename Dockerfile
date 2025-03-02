@@ -38,6 +38,10 @@ COPY --from=builder /app/docs/swagger ./docs/swagger
 RUN chmod +x /app/api-server && \
     chmod -R 755 /app/docs
 
+# Add GROQ_API_KEY build arg and environment variable
+ARG GROQ_API_KEY
+ENV GROQ_API_KEY=${GROQ_API_KEY}
+
 # Expose port
 EXPOSE 8082
 
