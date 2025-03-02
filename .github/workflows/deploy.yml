@@ -55,14 +55,27 @@ jobs:
           script: |
             cd /root/scarlett
             export GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}
-            # Stop containers but preserve volumes
-            docker-compose stop
-            # Remove only containers, keeping volumes
-            docker-compose rm -f
-            # Pull latest images
-            docker-compose pull
-            # Start everything up
-            docker-compose up -d
+            
+            # Pull the new API image first
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$(echo ${{ github.ref_name }} | sed 's/v//')
+            
+            # Stop and remove only the API container
+            docker-compose stop api
+            docker-compose rm -f api
+            
+            # Start the API container
+            docker-compose up -d api
+            
+            # Only restart Grafana if there are dashboard or configuration changes
+            if git diff --name-only HEAD HEAD^ | grep -q "grafana/"; then
+              echo "Grafana changes detected, updating Grafana..."
+              docker-compose stop grafana
+              docker-compose rm -f grafana
+              docker-compose up -d grafana
+            fi
+            
+            # Verify services are running
+            docker-compose ps
 
       - name: Setup Prometheus Backup System
         uses: appleboy/ssh-action@v1.0.0
