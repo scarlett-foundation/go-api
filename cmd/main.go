@@ -27,7 +27,6 @@ import (
 
 	// Import swagger docs
 	"go-api/docs/swagger"
-	_ "go-api/docs/swagger"
 	"go-api/internal/middleware"
 	"go-api/internal/routes"
 
