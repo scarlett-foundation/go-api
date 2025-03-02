@@ -29,6 +29,7 @@ services:
     environment:
       - PORT=8082
       - ENVIRONMENT=production
+      - API_HOST=api.scarlett.ai
     depends_on:
       prometheus:
         condition: service_healthy

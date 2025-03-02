@@ -12,7 +12,7 @@ package main
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host localhost:8082
+// @host ${API_HOST}
 // @BasePath /
 // @schemes http https
 
@@ -26,6 +26,7 @@ import (
 	"os"
 
 	// Import swagger docs
+	"go-api/docs/swagger"
 	_ "go-api/docs/swagger"
 	"go-api/internal/middleware"
 	"go-api/internal/routes"
@@ -45,6 +46,13 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Warning: .env file not found, using environment variables")
 	}
+
+	// Set Swagger host from environment variable
+	apiHost := os.Getenv("API_HOST")
+	if apiHost == "" {
+		apiHost = "localhost:8082"
+	}
+	swagger.SwaggerInfo.Host = apiHost
 
 	// Create Echo instance
 	e := echo.New()

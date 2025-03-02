@@ -1,24 +1,30 @@
 name: Deploy to Hetzner
-
 on:
-  release:
-    types: [published]
-  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
 
 env:
   REGISTRY: docker.io
   IMAGE_NAME: scarlettai/go-api
+  VERSION: 1.0.9
+  API_HOST: api.scarlett.ai
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.release.tag_name }}
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Extract metadata for Docker
         id: meta
@@ -28,51 +34,23 @@ jobs:
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=sha,prefix=
-            type=raw,value=latest
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build and push Docker images
-        uses: docker/build-push-action@v4
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Install SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.HETZNER_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Copy configuration files
-        run: |
-          ssh root@${{ secrets.HETZNER_HOST }} "mkdir -p /root/scarlett"
-          scp docker-compose.yml root@${{ secrets.HETZNER_HOST }}:/root/scarlett/
-          scp nginx.conf root@${{ secrets.HETZNER_HOST }}:/root/scarlett/
-          scp api-keys.yaml root@${{ secrets.HETZNER_HOST }}:/root/scarlett/
-          scp -r grafana root@${{ secrets.HETZNER_HOST }}:/root/scarlett/
-          scp prometheus.yml root@${{ secrets.HETZNER_HOST }}:/root/scarlett/
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+          build-args: |
+            API_HOST=${{ env.API_HOST }}
 
       - name: Deploy to Hetzner
-        run: |
-          # Install Docker if not present
-          ssh root@${{ secrets.HETZNER_HOST }} "apt-get update && apt-get install -y docker.io && systemctl start docker && systemctl enable docker"
-          # Install Docker Compose on the server
-          ssh root@${{ secrets.HETZNER_HOST }} "curl -L https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose"
-          # Login to Docker Hub on the server
-          ssh root@${{ secrets.HETZNER_HOST }} "docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}"
-          # Create Docker config backup
-          ssh root@${{ secrets.HETZNER_HOST }} "cp ~/.docker/config.json ~/.docker/config.json.backup || true"
-          # Pull and deploy
-          ssh root@${{ secrets.HETZNER_HOST }} "cd /root/scarlett && /usr/local/bin/docker-compose pull && /usr/local/bin/docker-compose up -d"
-
-      - name: Cleanup
-        run: rm -f ~/.ssh/id_rsa 
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HETZNER_HOST }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /root/scarlett
+            docker-compose pull
+            docker-compose up -d 

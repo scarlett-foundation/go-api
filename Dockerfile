@@ -15,6 +15,8 @@ RUN go mod download
 COPY . .
 
 # Generate Swagger docs
+ARG API_HOST=localhost:8082
+ENV API_HOST=${API_HOST}
 RUN /go/bin/swag init -g cmd/main.go -d ./ -o ./docs/swagger
 
 # Build the application
