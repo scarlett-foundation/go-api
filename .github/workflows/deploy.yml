@@ -7,7 +7,6 @@ on:
 env:
   REGISTRY: docker.io
   IMAGE_NAME: scarlettai/go-api
-  VERSION: 1.0.9
   API_HOST: api.scarlett.ai
 
 jobs:
@@ -32,6 +31,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
+            type=ref,event=tag
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
 
@@ -40,7 +40,8 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             API_HOST=${{ env.API_HOST }}
             GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}
@@ -54,5 +55,11 @@ jobs:
           script: |
             cd /root/scarlett
             export GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}
+            # Stop containers but preserve volumes
+            docker-compose stop
+            # Remove only containers, keeping volumes
+            docker-compose rm -f
+            # Pull latest images
             docker-compose pull
+            # Start everything up
             docker-compose up -d 
