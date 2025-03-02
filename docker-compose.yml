@@ -73,6 +73,8 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_FEATURE_TOGGLES_ENABLE=publicDashboards:false
+      - GF_SERVER_ROOT_URL=https://grafana.scarlett.ai
+      - GF_SERVER_DOMAIN=grafana.scarlett.ai
     restart: unless-stopped
 
 networks:
