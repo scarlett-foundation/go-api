@@ -62,4 +62,43 @@ jobs:
             # Pull latest images
             docker-compose pull
             # Start everything up
-            docker-compose up -d 
+            docker-compose up -d
+
+      - name: Setup Prometheus Backup System
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HETZNER_HOST }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Create necessary directories if they don't exist
+            mkdir -p /root/backups/prometheus
+            
+            # Create or preserve log file
+            if [ ! -f /var/log/prometheus-backup.log ]; then
+              touch /var/log/prometheus-backup.log
+              chmod 644 /var/log/prometheus-backup.log
+            fi
+            
+            # Backup existing scripts before updating
+            if [ -f /root/backup-prometheus.sh ]; then
+              cp /root/backup-prometheus.sh /root/backup-prometheus.sh.bak
+            fi
+            if [ -f /root/restore-prometheus.sh ]; then
+              cp /root/restore-prometheus.sh /root/restore-prometheus.sh.bak
+            fi
+            
+            # Copy new backup and restore scripts
+            cd /root/scarlett
+            cp prometheus/scripts/backup.sh /root/backup-prometheus.sh
+            cp prometheus/scripts/restore.sh /root/restore-prometheus.sh
+            chmod +x /root/backup-prometheus.sh /root/restore-prometheus.sh
+            
+            # Setup cron job for daily backups at 2 AM (only if not already set)
+            if ! (crontab -l 2>/dev/null | grep -q "backup-prometheus.sh"); then
+              (crontab -l 2>/dev/null; echo "0 2 * * * /root/backup-prometheus.sh") | crontab -
+              echo "$(date): Prometheus backup cron job installed" >> /var/log/prometheus-backup.log
+            fi
+            
+            # Log the update
+            echo "$(date): Prometheus backup scripts updated during deployment" >> /var/log/prometheus-backup.log 
