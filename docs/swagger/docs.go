@@ -235,9 +235,9 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8082",
+	Host:             "${API_HOST}",
 	BasePath:         "/",
-	Schemes:          []string{"http", "https"},
+	Schemes:          []string{"https"},
 	Title:            "Scarlett API",
 	Description:      "A Go API service for the Scarlett Protocol that provides chat completion functionality",
 	InfoInstanceName: "swagger",

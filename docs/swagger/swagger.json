@@ -1,6 +1,5 @@
 {
     "schemes": [
-        "http",
         "https"
     ],
     "swagger": "2.0",
@@ -19,7 +18,7 @@
         },
         "version": "1.0"
     },
-    "host": "localhost:8082",
+    "host": "${API_HOST}",
     "basePath": "/",
     "paths": {
         "/chat/completions": {

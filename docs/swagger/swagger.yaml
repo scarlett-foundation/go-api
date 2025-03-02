@@ -100,7 +100,7 @@ definitions:
       total_tokens:
         type: integer
     type: object
-host: localhost:8082
+host: ${API_HOST}
 info:
   contact:
     email: help@scarlett.ai
@@ -153,7 +153,6 @@ paths:
       tags:
       - chat
 schemes:
-- http
 - https
 securityDefinitions:
   BearerAuth:

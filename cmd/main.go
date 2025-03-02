@@ -14,7 +14,7 @@ package main
 
 // @host ${API_HOST}
 // @BasePath /
-// @schemes http https
+// @schemes https
 
 // @securityDefinitions.apikey BearerAuth
 // @in header
@@ -52,6 +52,13 @@ func main() {
 		apiHost = "localhost:8082"
 	}
 	swagger.SwaggerInfo.Host = apiHost
+
+	// Set schemes based on environment
+	if os.Getenv("ENVIRONMENT") == "production" {
+		swagger.SwaggerInfo.Schemes = []string{"https"}
+	} else {
+		swagger.SwaggerInfo.Schemes = []string{"http", "https"}
+	}
 
 	// Create Echo instance
 	e := echo.New()
