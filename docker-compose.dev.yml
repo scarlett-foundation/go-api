@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  api:
+    image: local/go-api:dev
+    container_name: api
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./api-keys.yaml:/app/api-keys.yaml:ro
+    networks:
+      - scarlett-network
+    environment:
+      - PORT=8082
+      - ENVIRONMENT=development
+      - API_HOST=localhost:8082
+      - GROQ_API_KEY=${GROQ_API_KEY}
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    healthcheck:
+      test: ["CMD", "pgrep", "prometheus"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - scarlett-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: grafana
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    networks:
+      - scarlett-network
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_FEATURE_TOGGLES_ENABLE=publicDashboards:false
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+      - GF_SERVER_DOMAIN=localhost
+    restart: unless-stopped
+
+networks:
+  scarlett-network:
+    driver: bridge
+
+volumes:
+  prometheus_data:
+  grafana_data: 

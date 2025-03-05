@@ -93,7 +93,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(increase(token_usage_total[1000d]))",
+          "expr": "sum(token_usage_total)",
           "instant": false,
           "legendFormat": "Total Tokens Used",
           "range": true,

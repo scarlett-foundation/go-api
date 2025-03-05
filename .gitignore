@@ -29,3 +29,5 @@ ssl-temp/api.scarlett.ai.key
 ssl-temp/api.scarlett.ai.pem
 ssl-temp/grafana.scarlett.ai.key
 ssl-temp/grafana.scarlett.ai.pem
+.env.development
+.env.production
