@@ -93,7 +93,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(token_usage_total)",
+          "expr": "sum(increase(token_usage_total[$__range]))",
           "instant": false,
           "legendFormat": "Total Tokens Used",
           "range": true,
@@ -116,7 +116,7 @@
     "list": []
   },
   "time": {
-    "from": "now-7d",
+    "from": "now-30d",
     "to": "now"
   },
   "timepicker": {},

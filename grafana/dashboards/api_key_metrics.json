@@ -91,7 +91,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(api_key_requests_total)",
+          "expr": "sum(increase(api_key_requests_total[$__range]))",
           "legendFormat": "Total (All Keys)",
           "range": true,
           "refId": "A"
@@ -102,7 +102,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by(api_key) (api_key_requests_total)",
+          "expr": "sum by(api_key) (increase(api_key_requests_total[$__range]))",
           "legendFormat": "{{api_key}}",
           "range": true,
           "refId": "B"
@@ -193,7 +193,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(token_usage_total)",
+          "expr": "sum(increase(token_usage_total[$__range]))",
           "legendFormat": "Total (All Keys)",
           "range": true,
           "refId": "A"
@@ -204,7 +204,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by(api_key) (token_usage_total)",
+          "expr": "sum by(api_key) (increase(token_usage_total[$__range]))",
           "legendFormat": "{{api_key}}",
           "range": true,
           "refId": "B"
@@ -432,7 +432,7 @@
     "list": []
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-30d",
     "to": "now"
   },
   "timepicker": {},
