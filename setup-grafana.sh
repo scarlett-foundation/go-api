@@ -53,6 +53,7 @@ if [ -n "$PROM_UID" ] && [ "$PROM_UID" != "null" ]; then
     # Import all dashboards
     import_dashboard "./grafana/dashboards/api_key_metrics.json" "API Key Metrics"
     import_dashboard "./grafana/dashboards/token_usage_metrics.json" "Token Usage Overview"
+    import_dashboard "./grafana/dashboards/api_health_metrics.json" "API Health Metrics"
     
     # Disable public dashboards feature globally in Grafana
     echo "Disabling public dashboards feature globally..."
