@@ -31,7 +31,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Proxies a chat completions request to the Groq API. Important: Authorization header must use Bearer format (e.g., \"Bearer your-api-key\").",
+                "description": "An API for LLM chat completion requests using Scarlett's LLM providers. Important: Authorization header must use Bearer format (e.g., \"Bearer your-api-key\").",
                 "consumes": [
                     "application/json"
                 ],
@@ -239,7 +239,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/",
 	Schemes:          []string{"https"},
 	Title:            "Scarlett API",
-	Description:      "A Go API service for the Scarlett Protocol that provides chat completion functionality",
+	Description:      "A Go API service for the Scarlett Protocol that provides LLM chat completion functionality",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

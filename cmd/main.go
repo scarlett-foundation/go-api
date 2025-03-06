@@ -2,7 +2,7 @@ package main
 
 // @title Scarlett API
 // @version 1.0
-// @description A Go API service for the Scarlett Protocol that provides chat completion functionality
+// @description A Go API service for the Scarlett Protocol that provides LLM chat completion functionality
 // @termsOfService http://swagger.io/terms/
 
 // @contact.name API Support

@@ -4,7 +4,7 @@
     ],
     "swagger": "2.0",
     "info": {
-        "description": "A Go API service for the Scarlett Protocol that provides chat completion functionality",
+        "description": "A Go API service for the Scarlett Protocol that provides LLM chat completion functionality",
         "title": "Scarlett API",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
@@ -28,7 +28,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Proxies a chat completions request to the Groq API. Important: Authorization header must use Bearer format (e.g., \"Bearer your-api-key\").",
+                "description": "An API for LLM chat completion requests using Scarlett's LLM providers. Important: Authorization header must use Bearer format (e.g., \"Bearer your-api-key\").",
                 "consumes": [
                     "application/json"
                 ],

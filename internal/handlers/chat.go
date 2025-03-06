@@ -24,7 +24,7 @@ const groqEndpoint = "https://api.groq.com/openai/v1/chat/completions"
 
 // HandleChatCompletions handles the chat completions endpoint
 // @Summary Process chat completions request
-// @Description Proxies a chat completions request to the Groq API. Important: Authorization header must use Bearer format (e.g., "Bearer your-api-key").
+// @Description An API for LLM chat completion requests using Scarlett's LLM providers. Important: Authorization header must use Bearer format (e.g., "Bearer your-api-key").
 // @Tags chat
 // @Accept json
 // @Produce json
@@ -36,7 +36,7 @@ const groqEndpoint = "https://api.groq.com/openai/v1/chat/completions"
 // @Failure 500 {object} types.ErrorResponse "Internal server error"
 // @Example curl request
 //
-//	curl -X POST http://localhost:8082/chat/completions \
+//	curl -X POST https://api.scarlett.ai/chat/completions \
 //	  -H "Authorization: Bearer your-api-key" \
 //	  -H "Content-Type: application/json" \
 //	  -d '{
